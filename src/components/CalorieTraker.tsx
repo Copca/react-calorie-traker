@@ -28,7 +28,10 @@ export default function CalorieTraker({ activities }: CalorieTrakerProps) {
 		[activities]
 	);
 
-	const netCalories = useMemo(() => caloriesConsumed - caloriesBurned, [activities]);
+	const netCalories = useMemo(
+		() => caloriesConsumed - caloriesBurned,
+		[caloriesBurned, caloriesConsumed]
+	);
 	return (
 		<>
 			<h2 className='text-4xl font-black text-white text-center'>Resumen de Calorías</h2>

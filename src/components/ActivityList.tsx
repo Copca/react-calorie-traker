@@ -29,7 +29,7 @@ export default function ActivityList({ activities, dispatch }: ActivityListProps
 				activities.map((activity) => (
 					<div
 						key={activity.id}
-						className='flex justify-between bg-white px-5 py-10 mt-5'
+						className='flex justify-between bg-white shadow px-5 py-10 mt-5'
 					>
 						<div className='space-y-2 relative'>
 							<p

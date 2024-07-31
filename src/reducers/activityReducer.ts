@@ -3,15 +3,22 @@ import type { IActivity } from '../types';
 export type ActivityActions =
 	| { type: 'save-activity'; payload: { newActivity: IActivity } }
 	| { type: 'set-activityId'; payload: { id: IActivity['id'] } }
-	| { type: 'delete-activityId'; payload: { id: IActivity['id'] } };
+	| { type: 'delete-activityId'; payload: { id: IActivity['id'] } }
+	| { type: 'restar-app' };
 
 export type ActivityState = {
 	activities: IActivity[];
 	activeId: IActivity['id'];
 };
 
+// Obtiene datos de LocalStorage || []
+const localStorageActivities = (): IActivity[] => {
+	const activities = localStorage.getItem('activities');
+	return activities ? JSON.parse(activities) : [];
+};
+
 export const initialState: ActivityState = {
-	activities: [],
+	activities: localStorageActivities(),
 	activeId: ''
 };
 
@@ -48,6 +55,13 @@ export const activityReducer = (state: ActivityState = initialState, action: Act
 			activities: state.activities.filter(
 				(activityState) => activityState.id !== action.payload.id
 			)
+		};
+	}
+
+	if (action.type === 'restar-app') {
+		return {
+			activities: [],
+			activeId: ''
 		};
 	}
 

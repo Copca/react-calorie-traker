@@ -4,6 +4,7 @@ export type ICategory = {
 };
 
 export type IActivity = {
+	id: string;
 	category: number;
 	name: string;
 	calories: number;

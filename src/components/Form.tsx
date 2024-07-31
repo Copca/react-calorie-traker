@@ -1,14 +1,36 @@
-import { useState, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent, Dispatch } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
-import type { IActivity } from '../types';
 import { categories } from '../data/categories';
+import type { IActivity } from '../types';
+import { ActivityActions, ActivityState } from '../reducers/activityReducer';
 
-export default function Form() {
-	const [activity, setActivity] = useState<IActivity>({
-		category: 1,
-		name: '',
-		calories: 0
-	});
+type FormProps = {
+	dispatch: Dispatch<ActivityActions>;
+	state: ActivityState;
+};
+
+const initialState = {
+	id: uuidv4(),
+	category: 1,
+	name: '',
+	calories: 0
+};
+
+export default function Form({ dispatch, state }: FormProps) {
+	const [activity, setActivity] = useState<IActivity>(initialState);
+
+	// Cuado se da click al boton editar, se actualiza state.activeId, y acutualizamos el formulario
+	useEffect(() => {
+		if (state.activeId) {
+			const selectedActivity = state.activities.filter(
+				(stateActivity) => stateActivity.id === state.activeId
+			)[0]; // filter => un [] necesitamos la posicion [0]
+
+			// Se actualiza el contenido del formulario
+			setActivity(selectedActivity);
+		}
+	}, [state.activeId, state.activities]);
 
 	const handleChange = (e: ChangeEvent<HTMLSelectElement> | ChangeEvent<HTMLInputElement>) => {
 		const isNumberField = ['category', 'calories'].includes(e.target.name); // => true/false
@@ -21,11 +43,26 @@ export default function Form() {
 
 	const isValidActivity = () => {
 		const { name, calories } = activity;
+
 		return name.trim() !== '' && calories > 0;
 	};
 
+	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+
+		dispatch({ type: 'save-activity', payload: { newActivity: activity } });
+
+		setActivity({
+			...initialState,
+			id: uuidv4()
+		});
+	};
+
 	return (
-		<form className='space-y-5 bg-white shadow shadow-black rounded-lg p-10'>
+		<form
+			className='space-y-5 bg-white shadow shadow-black rounded-lg p-10'
+			onSubmit={handleSubmit}
+		>
 			<div className='grid grid-cols-1 gap-3'>
 				<label htmlFor='category' className='font-bold'>
 					Categoría:
@@ -80,8 +117,8 @@ export default function Form() {
 
 			<input
 				type='submit'
-				className='bg-gray-800 hover:bg-gray-900 text-white w-full font-bold uppercase p-2 disabled:opacity-10'
-				value='Guardar Comida o Guardar Ejercicio'
+				className='bg-gray-800 hover:bg-gray-900 text-white w-full font-bold uppercase p-2 disabled:opacity-10 cursor-pointer'
+				value={activity.category === 1 ? 'Guardar Comida' : 'Guardar Ejercicio'}
 				disabled={!isValidActivity()}
 			/>
 		</form>
